@@ -38,7 +38,7 @@ public class MAgent extends AgentInterface {
     }
 
     /** The array of arrays all have 'p' for every value since the cheese could be at any spot */
-    public void initializeMemoryMap(){
+    public void initializeMemoryMap() {
         Arrays.fill(memoryMap[0], 'p');
         Arrays.fill(memoryMap[1], 'p');
         Arrays.fill(memoryMap[2], 'p');
@@ -69,7 +69,84 @@ public class MAgent extends AgentInterface {
     // The following code that makes inferences on the location of the food
     // based on the sense of smell changes with changes in direction
 
-    public void updatePossibleFoodLocation()
+    public void updatePossibleFoodLocation(){
+
+    }
+
+    public void notFood(int row, int column){
+                                              //probably going to have a bug with row and column mixed up
+        if (memoryMap[row][column] == 'p') { // probably going to have a bug here with the ' ' char
+            memoryMap[row][column] = ' ';
+        }
+    }
+
+    //a list of booleans whether or not row>currentRow, row< currentRow, column<currentColumn, column>currentColumn;
+    //pass booleans to function which decides to call ifNotFood or not
+
+    public void notFoodVerticalLoop() {
+            for (int r = 0; r < memoryMap.length; r++) {
+                for (int c = 0; c < memoryMap[r].length; c++) {
+                    HashMap<String, Boolean> directionFlags = booleansNotFood(r, c);
+                    ifNotFood(directionFlags, r, c);
+                }
+            }
+    }
+
+    public HashMap<String, Boolean> booleansNotFood(int row, int column, int absoluteDistance) {
+        HashMap<String, Boolean> directionFlags = new HashMap<String, Boolean>();
+
+        directionFlags.put("leftOfCurrentLocation", row>currentLocation.y);
+        directionFlags.put("rightOfCurrentLocation", row<currentLocation.y);
+        directionFlags.put("upOfCurrentLocation", column>currentLocation.x);
+        directionFlags.put("downOfCurrentLocation", column<currentLocation.x);
+
+        directionFlags.put("inHorizontalSpread", absoluteDistance <= Math.abs(column-currentLocation.x));
+        directionFlags.put("inVerticalSpread", absoluteDistance <= Math.abs(row-currentLocation.y));
+
+        return directionFlags;
+    }
+
+    public void ifNotFood(HashMap<String, Boolean> directionFlags, int row, int column){
+        boolean facingFoward, absoluteDistance;
+        int absoluteVerticalSpread   = 1 + 2*(Math.abs(row - currentLocation.y));
+        int absoluteHorizontalSpread = 1 + 2*(Math.abs(column - currentLocation.x));
+
+        if (currentDirection.equals("north")) {
+            facingFoward=column>currentLocation.x;
+            absoluteDistance = directionFlags.get("inHorizontalSpread");
+        } if (currentDirection.equals("south")) {
+            facingFoward=column<currentLocation.x;
+            absoluteDistance = directionFlags.get("inHorizontalSpread");
+        }  if (currentDirection.equals("left")) {
+            facingFoward=row>currentLocation.y;
+            absoluteDistance = directionFlags.get("inVerticalSpread");
+        }  else {//if (currentDirection.equals("right")){
+            facingFoward=row<currentLocation.y;
+            absoluteDistance = directionFlags.get("inVerticalSpread");
+        }
+
+        ifPossible(facingFoward, absoluteDistance, row, column);
+
+    }
+
+    public void ifPossible(boolean facingForward, boolean absoluteDistance, int row, int column){
+        if (facingForward &&  absoluteDistance){
+        } else {
+            notFood(row, column);
+        }
+    }
+
+    public void eliminatePossibilities(int row, int column, String direction) {
+       if (direction.equals("north")) {
+
+       } if (direction.equals("east")){
+
+       } if (direction.equals("south")){
+
+       } if (direction.equals("west")){
+
+       }
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // The following code updates the memory map after processing the retinal field
