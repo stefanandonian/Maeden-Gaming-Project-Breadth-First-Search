@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="68d1f6ff-9295-41bd-a486-91aece0d1174" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/memoryAgent/src/MAgent.java" afterPath="$PROJECT_DIR$/memoryAgent/src/MAgent.java" />
     </list>
     <ignored path="maedenSearchAgent.iws" />
@@ -28,10 +27,15 @@
       <file leaf-file-name="MAgent.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/memoryAgent/src/MAgent.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.3652968">
-              <caret line="139" column="33" selection-start-line="139" selection-start-column="33" selection-end-line="139" selection-end-column="33" />
+            <state vertical-scroll-proportion="0.02283105">
+              <caret line="25" column="74" selection-start-line="25" selection-start-column="74" selection-end-line="25" selection-end-column="74" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#1222#1230#0" expanded="true" />
+                <element signature="e#6640#6641#0" expanded="true" />
+                <element signature="e#6695#6696#0" expanded="true" />
+                <element signature="e#6786#6787#0" expanded="true" />
+                <element signature="e#6844#6845#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -644,12 +648,12 @@
       <updated>1455948337933</updated>
       <workItem from="1455948339550" duration="6437000" />
       <workItem from="1456283925129" duration="20874000" />
-      <workItem from="1456537373893" duration="905000" />
+      <workItem from="1456537373893" duration="3818000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="28216000" />
+    <option name="totallyTimeSpent" value="31129000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="4" y="23" width="1276" height="777" extended-state="0" />
@@ -725,6 +729,11 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#1222#1230#0" expanded="true" />
+            <element signature="e#6640#6641#0" expanded="true" />
+            <element signature="e#6695#6696#0" expanded="true" />
+            <element signature="e#6786#6787#0" expanded="true" />
+            <element signature="e#6844#6845#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -755,6 +764,11 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#1222#1230#0" expanded="true" />
+            <element signature="e#6640#6641#0" expanded="true" />
+            <element signature="e#6695#6696#0" expanded="true" />
+            <element signature="e#6786#6787#0" expanded="true" />
+            <element signature="e#6844#6845#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -788,10 +802,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/memoryAgent/src/MAgent.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3652968">
-          <caret line="139" column="33" selection-start-line="139" selection-start-column="33" selection-end-line="139" selection-end-column="33" />
+        <state vertical-scroll-proportion="0.02283105">
+          <caret line="25" column="74" selection-start-line="25" selection-start-column="74" selection-end-line="25" selection-end-column="74" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#1222#1230#0" expanded="true" />
+            <element signature="e#6640#6641#0" expanded="true" />
+            <element signature="e#6695#6696#0" expanded="true" />
+            <element signature="e#6786#6787#0" expanded="true" />
+            <element signature="e#6844#6845#0" expanded="true" />
           </folding>
         </state>
       </provider>

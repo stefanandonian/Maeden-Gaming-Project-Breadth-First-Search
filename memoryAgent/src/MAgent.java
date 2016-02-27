@@ -1,8 +1,10 @@
 
 import java.awt.*;
+import java.util.AbstractQueue;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.Arrays;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * class Agent: Provides a AI agent to a Grid world simulation.
@@ -17,13 +19,14 @@ public class MAgent extends AgentInterface {
     protected static final int visualColumns = 5;
 
     /** size of largest possible world fits inside a 50 by 50 space */
-    protected static final int WIDTH         = 50;
-    protected static final int HEIGHT        = 50;
-    protected char[][] memoryMap             = new char[100][100];
-    protected Point startingLocation         = new Point(50, 50);
-    protected Point currentLocation          = startingLocation; //at first the current location is the starting location
-    protected String currentDirection        = "north";
-    protected Point botLocationOnVisualField = new Point(5, 2);
+    protected static final int WIDTH                     = 100;
+    protected static final int HEIGHT                    = 100;
+    protected char[][] memoryMap                         = new char[WIDTH][HEIGHT];
+    protected Point startingLocation                     = new Point(50, 50);
+    protected Point botLocationOnVisualField             = new Point(5, 2);
+    protected Point currentLocation                      = startingLocation; //at first the current location is the starting location
+    protected String currentDirection                    = "north";
+    protected LinkedBlockingQueue<String> movementOrders = new LinkedBlockingQueue<String>();
 
     /** Main Method */
     public static void main(String [] args) {
@@ -33,24 +36,19 @@ public class MAgent extends AgentInterface {
 
     /** CONSTRUCTOR */
     public MAgent(String h, int p) {
-        registerWithGrid(h, p);      //connect to the grid server socket
+        registerWithGrid(h, p);
         initializeMemoryMap();
     }
 
     /** The array of arrays all have 'p' for every value since the cheese could be at any spot */
     public void initializeMemoryMap() {
-        Arrays.fill(memoryMap[0], 'p');
-        Arrays.fill(memoryMap[1], 'p');
-        Arrays.fill(memoryMap[2], 'p');
-        Arrays.fill(memoryMap[3], 'p');
-        Arrays.fill(memoryMap[4], 'p');
-        Arrays.fill(memoryMap[5], 'p');
-        Arrays.fill(memoryMap[6], 'p');
-        Arrays.fill(memoryMap[7], 'p');
-        Arrays.fill(memoryMap[8], 'p');
-        Arrays.fill(memoryMap[9], 'p');
+       for (int i = 0; i< memoryMap.length; i++) {
+        Arrays.fill(memoryMap[i], 'p');
+       }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // The following code determines what to do given the current memoryMap
     public void run() {
         //implementation needed
     }
@@ -62,90 +60,78 @@ public class MAgent extends AgentInterface {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // The following code determines what to do given the current memoryMap
+    // The following code determines how to get to locations
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // The following code that makes inferences on the location of the food
     // based on the sense of smell changes with changes in direction
-
-    public void updatePossibleFoodLocation(){
-
-    }
-
-    public void notFood(int row, int column){
-                                              //probably going to have a bug with row and column mixed up
-        if (memoryMap[row][column] == 'p') { // probably going to have a bug here with the ' ' char
-            memoryMap[row][column] = ' ';
-        }
-    }
-
-    //a list of booleans whether or not row>currentRow, row< currentRow, column<currentColumn, column>currentColumn;
-    //pass booleans to function which decides to call ifNotFood or not
-
-    public void notFoodVerticalLoop() {
+    /**
+     * checkThroughPotentialFoodLocations checks every location on the for whether it
+     * has the potential to be the food source or not depending on the bots current location
+     * and facing direction.
+     */
+    public void checkThroughPotentialFoodLocations() {
             for (int r = 0; r < memoryMap.length; r++) {
                 for (int c = 0; c < memoryMap[r].length; c++) {
-                    HashMap<String, Boolean> directionFlags = booleansNotFood(r, c);
-                    ifNotFood(directionFlags, r, c);
+                    ifNotFood(r, c);
                 }
             }
     }
 
-    public HashMap<String, Boolean> booleansNotFood(int row, int column, int absoluteDistance) {
-        HashMap<String, Boolean> directionFlags = new HashMap<String, Boolean>();
-
-        directionFlags.put("leftOfCurrentLocation", row>currentLocation.y);
-        directionFlags.put("rightOfCurrentLocation", row<currentLocation.y);
-        directionFlags.put("upOfCurrentLocation", column>currentLocation.x);
-        directionFlags.put("downOfCurrentLocation", column<currentLocation.x);
-
-        directionFlags.put("inHorizontalSpread", absoluteDistance <= Math.abs(column-currentLocation.x));
-        directionFlags.put("inVerticalSpread", absoluteDistance <= Math.abs(row-currentLocation.y));
-
-        return directionFlags;
-    }
-
-    public void ifNotFood(HashMap<String, Boolean> directionFlags, int row, int column){
-        boolean facingFoward, absoluteDistance;
-        int absoluteVerticalSpread   = 1 + 2*(Math.abs(row - currentLocation.y));
-        int absoluteHorizontalSpread = 1 + 2*(Math.abs(column - currentLocation.x));
+    /**
+     * ifNotFood sets two boolean values that determine if the current tile on the game
+     * board is a potential food source and if not eliminate its possibility from being assumed.
+     * @param row
+     * @param column
+     */
+    public void ifNotFood(int row, int column){
+        boolean facingFoward, inSpread;
+        int verticalSpread   = 1 + 2*(Math.abs(row - currentLocation.y));
+        int horizontalSpread = 1 + 2*(Math.abs(column - currentLocation.x));
 
         if (currentDirection.equals("north")) {
             facingFoward=column>currentLocation.x;
-            absoluteDistance = directionFlags.get("inHorizontalSpread");
+            inSpread = verticalSpread >= Math.abs(column - currentLocation.x);
         } if (currentDirection.equals("south")) {
             facingFoward=column<currentLocation.x;
-            absoluteDistance = directionFlags.get("inHorizontalSpread");
+            inSpread = verticalSpread >= Math.abs(column - currentLocation.x);
         }  if (currentDirection.equals("left")) {
             facingFoward=row>currentLocation.y;
-            absoluteDistance = directionFlags.get("inVerticalSpread");
+            inSpread = horizontalSpread >= Math.abs(column - currentLocation.y);
         }  else {//if (currentDirection.equals("right")){
             facingFoward=row<currentLocation.y;
-            absoluteDistance = directionFlags.get("inVerticalSpread");
+            inSpread = horizontalSpread >= Math.abs(row - currentLocation.y);
         }
 
-        ifPossible(facingFoward, absoluteDistance, row, column);
+        isPossibleFoodLocation(facingFoward, inSpread, row, column);
 
     }
 
-    public void ifPossible(boolean facingForward, boolean absoluteDistance, int row, int column){
-        if (facingForward &&  absoluteDistance){
+    /**
+     * ifPossible determines if the current tile is in facing direction
+     * @param facingForward
+     * @param inSpread
+     * @param row
+     * @param column
+     */
+    public void isPossibleFoodLocation(boolean facingForward, boolean inSpread, int row, int column){
+        if (facingForward &&  inSpread){
         } else {
-            notFood(row, column);
+            notAFoodLocation(row, column);
         }
     }
 
-    public void eliminatePossibilities(int row, int column, String direction) {
-       if (direction.equals("north")) {
-
-       } if (direction.equals("east")){
-
-       } if (direction.equals("south")){
-
-       } if (direction.equals("west")){
-
-       }
+    /**
+     * notFood asserts that the tile under inspection is not food
+     * @param row
+     * @param column
+     */
+    public void notAFoodLocation(int row, int column){
+        //probably going to have a bug with row and column mixed up
+        if (memoryMap[row][column] == 'p') { // probably going to have a bug here with the ' ' char
+            memoryMap[row][column] = ' ';
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
