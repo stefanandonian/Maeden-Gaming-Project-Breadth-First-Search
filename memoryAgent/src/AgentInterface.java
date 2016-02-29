@@ -36,14 +36,14 @@ public abstract class AgentInterface {
      * Pre: String info contains list of list of list of chars(?)
      * Post: int[] of flags for where walls are located in reference to bot
      */
-    public abstract HashMap<String, Integer> processRetinalField(String info);
+    //public abstract [void OR HashMap<String, Integer>] processRetinalField(String info);
 
     /**
      * chooseMove returns a direction to send to the server
      * pre: a direction to the food source and a hashmap of directions mapping to obstacles
      * post: a direction to send to the server
      */
-    public abstract String chooseMove(String directionToFood, HashMap<String, Integer> flags);
+    //public abstract String chooseMove(String directionToFood, HashMap<String, Integer> flags);
 
     /**
      * registerWithGrid takes a string and an int
@@ -101,14 +101,14 @@ public abstract class AgentInterface {
                 System.exit(1);
             }
 
-            String heading = direction(gridIn.readLine().toCharArray()[0]); // 1: get the smell info
-            String inventory = gridIn.readLine();                          // 2: get the inventory
-            String info = gridIn.readLine();                              // 3: get the visual info
-            String ground = gridIn.readLine();                           // 4: get ground contents
-            String message = gridIn.readLine();                         // 5: get messages
-            String energy = gridIn.readLine();                         // 6: energy
-            String lastActionStatus = gridIn.readLine();              // 7: lastActionStatus
-            String worldTime = gridIn.readLine();                    // 8: world time
+            String heading = direction(gridIn.readLine().toCharArray()[0]); // 0: get the smell info
+            String inventory = gridIn.readLine();                          // 1: get the inventory
+            String info = gridIn.readLine();                              // 2: get the visual info
+            String ground = gridIn.readLine();                           // 3: get ground contents
+            String message = gridIn.readLine();                         // 4: get messages
+            String energy = gridIn.readLine();                         // 5: energy
+            String lastActionStatus = gridIn.readLine();              // 6: lastActionStatus
+            String worldTime = gridIn.readLine();                    // 7: world time
 
             //create new array of the data that was just received.
             sensoryInfo[0] = heading;

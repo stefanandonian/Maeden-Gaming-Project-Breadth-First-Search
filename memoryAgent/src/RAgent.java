@@ -21,6 +21,7 @@ public class RAgent extends AgentInterface {
         String[] sensoryData = new String[8];
         while (true) {
             sensoryData = getSensoryInfo();
+            System.out.println(sensoryData[2]);
             String Direction = sensoryData[0].substring(0, 1);
             HashMap<String, Integer> obstacles = processRetinalField(sensoryData[2]);
             char move = chooseMove(Direction, obstacles).toCharArray()[0];
