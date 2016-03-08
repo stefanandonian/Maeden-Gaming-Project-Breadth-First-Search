@@ -13,18 +13,18 @@ public class FindFood {
      * and facing direction.
      * @param memoryMap
      */
-    public char[][] checkThroughPotentialFoodLocations(char[][] memoryMap, char directionToFood, int currentRow, int currentColumn) {
-        char[][] alteredMemoryMap = memoryMap;
+    public char[][] checkThroughPotentialFoodLocations(char[][] memoryMap, char directionToFood, int botRow, int botColumn) {
+        char[][] alteredMemoryMap = copyMemoryMap(memoryMap);
         for (int r = 0; r < memoryMap.length; r++) {
             for (int c = 0; c < memoryMap[r].length; c++) {
-                alteredMemoryMap = findFood(memoryMap, directionToFood, currentRow, currentColumn, r, c);
+                alteredMemoryMap = findFood(memoryMap, directionToFood, botRow, botColumn, r, c);
             }
         }
         return alteredMemoryMap;
     }
 
     /**
-     * ifNotFood sets two boolean values that determine if the current tile on the game
+     * findFood sets two boolean values that determine if the current tile on the game
      * board is a potential food source and if not eliminate its possibility from being assumed.
      * @param memoryMap
      * @param botRow
@@ -34,32 +34,33 @@ public class FindFood {
      * @param directionToFood
      */
     public char[][] findFood(char[][] memoryMap, char directionToFood, int botRow, int botColumn, int projectedRow, int projectedColumn){
-        boolean facingFood, inSpread;
-        int verticalSpread   = 1 + 2*(Math.abs(projectedRow - botRow));
-        int horizontalSpread = 1 + 2*(Math.abs(projectedColumn - botColumn));
-        boolean vspread = verticalSpread >= Math.abs(projectedColumn - botColumn);
-        boolean hspread = horizontalSpread >= Math.abs(projectedRow - botRow);
+        boolean inDirectionToFood, inSpread;
+
+        int verticalSpread   = 1 + 2*(Math.abs(projectedRow - botRow)); // || difference above or below
+        int horizontalSpread = 1 + 2*(Math.abs(projectedColumn - botColumn)); // -- --  difference left or right
+        boolean hspread = verticalSpread >= Math.abs(projectedColumn - botColumn); // ><
+        boolean vspread = horizontalSpread >= Math.abs(projectedRow - botRow); // V ^ 
 
         switch (directionToFood) {
             case 'n' :
-                facingFood=projectedColumn>botColumn;
-                inSpread = vspread;
+                inDirectionToFood = projectedRow<botRow;
+                inSpread          = vspread;
                 break;
             case 's' :
-                facingFood=projectedColumn<botColumn;
-                inSpread = vspread;
+                inDirectionToFood = projectedRow>botRow;
+                inSpread          = vspread;
                 break;
-            case 'l' :
-                facingFood=projectedRow>botRow;
-                inSpread = hspread;
+            case 'w' :
+                inDirectionToFood = projectedColumn<botColumn;
+                inSpread          = hspread;
                 break;
-            default: //case 'r' :
-                facingFood=projectedRow<botRow;
-                inSpread = hspread;
+            default: //case 'e' :
+                inDirectionToFood = projectedColumn>botColumn;
+                inSpread          = hspread;
                 break;
         }
 
-        return checkTiles(memoryMap, facingFood, inSpread, projectedRow, projectedColumn);
+        return checkTiles(memoryMap, inDirectionToFood, inSpread, projectedRow, projectedColumn);
 
     }
 
@@ -87,11 +88,22 @@ public class FindFood {
      */
     public char[][] notAFoodLocation(char[][] memoryMap, int row, int column){
         //probably going to have a bug with row and column mixed up
-        char[][] alteredMemoryMap = memoryMap;
-        if (memoryMap[row][column] == 'p') { // probably going to have a bug here with the ' ' char
+        char[][] alteredMemoryMap = copyMemoryMap(memoryMap);
+        if (alteredMemoryMap[row][column] == 'p') { // probably going to have a bug here with the ' ' char
             alteredMemoryMap[row][column] = 'u';
             return alteredMemoryMap;
         }
         return memoryMap;
     }
+    
+    public char[][] copyMemoryMap(char[][] memoryMap) {
+    	char[][] alteredMemoryMap = new char[memoryMap.length][memoryMap[0].length];
+        for (int i = 0; i < memoryMap.length; i++) {
+        	for (int o = 0; o < memoryMap[i].length; o++) {
+        		alteredMemoryMap[i][o] = memoryMap[i][o];
+        	}
+        }
+        return alteredMemoryMap;
+    }
+
 }
