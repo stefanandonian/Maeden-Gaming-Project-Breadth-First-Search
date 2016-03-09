@@ -16,6 +16,7 @@ public class MAgent extends AgentInterface {
     protected static final int WIDTH                     = 100;
     protected static final int HEIGHT                    = 100;
     protected char[][] memoryMap                         = new char[WIDTH][HEIGHT];
+    MemoryMap memoryMap									 = new MemoryMap(WIDTH, HEIGHT);
     protected Point startingLocation                     = new Point(50, 50);
     protected Point currentLocation                      = startingLocation; //at first the current location is the starting location
     protected char facingDirection                       = 'n';
@@ -49,7 +50,7 @@ public class MAgent extends AgentInterface {
         while (true) {
             sensoryInfo = getSensoryInfo();
             memoryMap = visualInformation.processRetinalField(memoryMap, facingDirection, sensoryInfo[2], currentLocation.y, currentLocation.x);
-            memoryMap = findFood.checkThroughPotentialFoodLocations(memoryMap, facingDirection, currentLocation.y, currentLocation.x);
+            memoryMap = findFood.checkThroughPotentialFoodLocations(memoryMap, facingDirection, new Point(currentLocation.y, currentLocation.x));
             checkOrders();
             gridOut.print(movementOrders.poll());
         }

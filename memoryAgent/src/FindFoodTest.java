@@ -1,5 +1,7 @@
 import static org.junit.Assert.*;
 
+import java.awt.Point;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,17 +12,19 @@ public class FindFoodTest {
 
     protected FindFood findFood        = new FindFood();
     protected char[][] memoryMap       = new char[10][10];
-    protected int currentRow           = 2;
-    protected int currentColumn        = 5;
 
     @Before
     public void setUp() {
         for (int row = 0; row < memoryMap.length; row++) {
             for (int column = 0; column < memoryMap[row].length; column++) {
-                memoryMap[row][column] = 'p';
+            	if (row ==2 && column ==5) {
+            		memoryMap[2][5] = '0';
+            	} else {
+            		memoryMap[row][column] = 'p';
+            	}
+            	//System.out.println("MemoryMap value: " + memoryMap[row][column] + " | row: " + row + " | column: "+ column);
             }
         }
-        memoryMap[2][5] = '0';
     }
 
     @Test
@@ -38,74 +42,87 @@ public class FindFoodTest {
                 {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'}
         };
 
-        char[][] checkThroughPotentialFoodLocationsOutput = findFood.checkThroughPotentialFoodLocations(memoryMap, 's', currentRow, currentColumn);
+        char[][] checkThroughPotentialFoodLocationsOutput = findFood.checkThroughPotentialFoodLocations(memoryMap, 's', new Point(5, 2));
 
-        for (int row = 0; row < expectedMemoryMap.length; row++) {
-        	for (int column = 0; column < expectedMemoryMap[row].length; column++) {
-        	//assertEquals(expectedMemoryMap[row][column], checkThroughPotentialFoodLocationsOutput[column][row]);	
-        	System.out.println("row: " + row + "         column: " + column + "           " + " Expected Memory Map = " + 
-        	expectedMemoryMap[row][column] + "  ==  processed Memory Map = "
-        			+ "" + checkThroughPotentialFoodLocationsOutput[row][column]);
+        for (int y = 0; y< expectedMemoryMap.length; y++) {
+        	for (int x= 0; x< expectedMemoryMap[y].length; x++) {
+        		System.out.println("x: " + x+ "         y: " + y+ "           " + " Expected Memory Map = " + 
+        				expectedMemoryMap[y][x] + "  ==  processed Memory Map = "
+        			+ "" + checkThroughPotentialFoodLocationsOutput[y][x]);
+        		assertEquals(expectedMemoryMap[y][x], checkThroughPotentialFoodLocationsOutput[y][x]);	
         	}
         }
     }
-
-    @Test
-    public void testFindFood() throws Exception {
-        char[][] north = findFood.checkTile(memoryMap, false, false, 2, 5);
-        char[][] south = findFood.checkTile(memoryMap, false, false, 2, 5);
-        char[][] west  = findFood.checkTile(memoryMap, false, false, 2, 5);
-        char[][] east  = findFood.checkTile(memoryMap, false, false, 2, 5);
-
-        char[][] NorthNotInScope  = findFood.findFood(memoryMap, 'n', currentColumn, currentRow, currentColumn, currentRow+2);
-        char[][] NorthInScope     = findFood.findFood(memoryMap, 'n', currentColumn, currentRow, currentColumn, currentRow-2);
-
-        char[][] WestNotInScope   = findFood.findFood(memoryMap, 'w', currentColumn, currentRow, currentColumn+2, currentRow);
-        char[][] WestInScope      = findFood.findFood(memoryMap, 'w', currentColumn, currentRow, currentColumn-2, currentRow);
-
-        char[][] EastNotInScope   = findFood.findFood(memoryMap, 'e', currentColumn, currentRow, currentColumn-2, currentRow);
-        char[][] EastInScope      = findFood.findFood(memoryMap, 'e', currentColumn, currentRow, currentColumn+2, currentRow);
-
-        char[][] SouthNotInScope  = findFood.findFood(memoryMap, 's', currentColumn, currentRow, currentColumn, currentRow-2);
-        char[][] SouthInScope     = findFood.findFood(memoryMap, 's', currentColumn, currentRow, currentColumn, currentRow+2);
-
-
-        for (int row = 0; row < memoryMap.length; row++) {
-        	for (int column = 0; column < memoryMap[row].length; column++) {
-
-        assertEquals(NorthInScope[row][column], memoryMap[row][column]);
-        assertEquals(NorthNotInScope[row][column], north[row][column]);
-
-        assertEquals(SouthInScope[row][column], memoryMap[row][column]);
-        assertEquals(SouthNotInScope[row][column], south[row][column]);
-
-        assertEquals(WestInScope[row][column], memoryMap[row][column]);
-        assertEquals(WestNotInScope[row][column], west[row][column]);
-
-        assertEquals(EastInScope[row][column], memoryMap[row][column]);
-        assertEquals(EastNotInScope[row][column], east[row][column]);
-        	}
-        }
-    }
-
-    @Test
+    
+    //@Test
     public void testCheckTile() throws Exception {
-        char[][] notAFoodLocationOutput = findFood.notAFoodLocation(memoryMap, currentColumn, currentRow);
-        char[][] checkTilesOutputTT     = findFood.checkTile(memoryMap, true, true, currentColumn, currentRow);
-        char[][] checkTilesOutputTF     = findFood.checkTile(memoryMap, true, false, currentColumn, currentRow);
-        char[][] checkTilesOutputFF     = findFood.checkTile(memoryMap, false, false, currentColumn, currentRow);
+    	Point bot       = new Point(4,4);
+    	Point south_out = new Point(8, 7);
+    	Point north_in  = new Point(4, 2);
+    	Point west_out  = new Point(2, 9);
+    	Point east_in   = new Point(6, 3);
 
-                assertFalse(notAFoodLocationOutput[currentColumn][currentRow] == checkTilesOutputTT[currentColumn][currentRow]);
-                assertEquals(notAFoodLocationOutput[currentColumn][currentRow], checkTilesOutputTF[currentColumn][currentRow]);
-                assertEquals(notAFoodLocationOutput[currentColumn][currentRow], checkTilesOutputFF[currentColumn][currentRow]);
+    	char foodSouth_OutSpread  = findFood.checkTile('s', bot, south_out, 'p');
+    	char foodNorth_InSpread = findFood.checkTile('n', bot, north_in, 'p');
+    	char foodWest_OutSpread   = findFood.checkTile('w', bot, west_out, 'p');
+    	char foodEast_InSpread  = findFood.checkTile('e', bot, east_in, 'p');
+    	
+    	assertEquals(foodSouth_OutSpread, 'u');
+    	assertEquals(foodNorth_InSpread, 'p');
+    	assertEquals(foodWest_OutSpread, 'u');
+    	assertEquals(foodEast_InSpread, 'p');
+    }
+    
+    @Test
+    public void testIsInSpread() throws Exception {
+    	Point bot = new Point(5,2);
+    	Point south_in  = new Point(5, 5);
+    	Point north_out = new Point(9, 3);
+    	Point west_in   = new Point(2, 3);
+    	Point east_out  = new Point(6, 9);
+
+    	boolean foodSouth_InSpread  = findFood.isInSpread('s', bot, south_in);
+    	boolean foodNorth_OutSpread = findFood.isInSpread('n', bot, north_out);
+    	boolean foodWest_InSpread   = findFood.isInSpread('w', bot, west_in);
+    	boolean foodEast_OutSpread  = findFood.isInSpread('e', bot, east_out);
+    	
+    	assertEquals(false, findFood.isInSpread('s', bot, new Point(9,0)));
+    	assertEquals(false, findFood.isInSpread('s', bot, new Point(0, 3)));
+    	assertEquals(true, findFood.isInSpread('s', bot, new Point(0,9)));
     }
 
-    @Test
-    public void testNotAFoodLocation() throws Exception {
-        char location = memoryMap[currentColumn][currentRow+3];
-        assertEquals(location, 'p');
+    //@Test
+    public void testIsInDirectionToFood() throws Exception {
+    	Point bot   = new Point(4,4);
+    	Point south = new Point(4, 8);
+    	Point west  = new Point (0, 4);
 
-        char locationIsntFood = findFood.notAFoodLocation(memoryMap, currentColumn, currentRow)[currentColumn][currentRow];
-        assertEquals(locationIsntFood,'u');
+    	boolean foodSouth_southOfBot = findFood.isInDirectionToFood('s', bot, south); 
+    	boolean foodNorth_southOfBot = findFood.isInDirectionToFood('n', bot, south);
+    	boolean foodWest_westOfBot   = findFood.isInDirectionToFood('w', bot, west);
+    	boolean foodEast_westOfBot   = findFood.isInDirectionToFood('e', bot, west);
+    	
+    	assertEquals(foodSouth_southOfBot, true);
+    	assertEquals(foodNorth_southOfBot, false);
+    	assertEquals(foodWest_westOfBot, true);
+    	assertEquals(foodEast_westOfBot, false);
+    }
+
+    //@Test
+    public void testCheckTileHelper() throws Exception {
+        char possible    = findFood.checkTileHelper(true, true, 'p');
+        char notPossible = findFood.checkTileHelper(false, true, 'p');
+        
+        assertEquals(possible, 'p');
+        assertEquals(notPossible, 'u');
+
+    }
+
+    //@Test
+    public void testNotAFoodLocation() throws Exception {
+    	char previouslyP = findFood.notAFoodLocation('p'); // Should become u
+    	char previously0 = findFood.notAFoodLocation('0');
+        assertEquals(previouslyP, 'u');
+        assertFalse(previously0 == 'u');
     }
 }
