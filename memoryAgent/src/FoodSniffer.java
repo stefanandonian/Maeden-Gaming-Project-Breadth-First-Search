@@ -3,9 +3,9 @@ import java.awt.Point;
 /**
  * Created by stefanandonian on 2/27/16.
  */
-public class FindFood {
+public class FoodSniffer {
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////// The following code that makes inferences on the location of the food ////////////////////////////
     ////////////////// based on the sense of smell changes with changes in direction        ////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,12 +17,11 @@ public class FindFood {
 	 * @param bot
 	 * @return
 	 */
-    public char[][] checkThroughPotentialFoodLocations(char[][] memoryMap, char directionToFood, Point bot) {
-        for (int y = 0; y < memoryMap.length; y++) {
-            for (int x = 0; x < memoryMap[y].length; x++) {
-            	char updatingSpace = memoryMap[x][y];
-            	Point tile = new Point(x, y);
-                memoryMap[x][y] = checkTile(directionToFood, bot, tile, updatingSpace);
+    public MemoryMap checkAllTiles(MemoryMap memoryMap, char directionToFood, MaedenAgent agent) {
+        for (int x = 0; x < memoryMap.getXDomain(); ++x) {
+            for (int y = 0; y < memoryMap.getYDomain(); ++y) {
+            	Tile tile = memoryMap.getTile(x, y);
+                memoryMap.setTile(checkTile(agent, tile));
             }
         }
         return memoryMap;
@@ -37,8 +36,8 @@ public class FindFood {
      * @param value
      * @return
      */
-    public char checkTile(char directionToFood, Point bot, Point tile, char value) {
-    	boolean isInDirectionToFood = isInDirectionToFood(directionToFood, bot, tile);
+    public TileValue checkTile(MaedenAgent agent, Tile tile) {
+    	boolean isInDirectionToFood = isInDirectionToFood(agent, tile);
     	boolean isInSpread          = isInSpread(directionToFood, bot, tile);
 
     	return checkTileHelper(isInDirectionToFood, isInSpread, value);
@@ -95,7 +94,7 @@ public class FindFood {
      * @param inSpread
      * @param value 
      */
-    public char checkTileHelper(boolean facingFood, boolean inSpread, char value){
+    public TileValue checkTileHelper(boolean facingFood, boolean inSpread, TileValue value){
     	System.out.print("      facing food: "+facingFood+ "       inSpread : "+ inSpread);        	
         if (facingFood == true &&  inSpread == true){
         	System.out.println("");
@@ -109,10 +108,10 @@ public class FindFood {
      * notFood asserts that the tile under inspection is not food
      * @param value 
      */
-    public char notAFoodLocation(char value){
-        if (value == 'p') { 
+    public TileValue notAFoodLocation(TileValue value){
+        if (value == TileValue.POTENTIAL_FOOD) { 
         	System.out.println("     tile: "+'u');
-            return 'u';
+            return TileValue.UNKNOWN;
         }
         	System.out.println("     tile: "+value);
         return value;

@@ -15,14 +15,13 @@ public class MAgent extends AgentInterface {
     /** size of largest possible world fits inside a 50 by 50 space */
     protected static final int WIDTH                     = 100;
     protected static final int HEIGHT                    = 100;
-    protected char[][] memoryMap                         = new char[WIDTH][HEIGHT];
     MemoryMap memoryMap									 = new MemoryMap(WIDTH, HEIGHT);
     protected Point startingLocation                     = new Point(50, 50);
     protected Point currentLocation                      = startingLocation; //at first the current location is the starting location
     protected char facingDirection                       = 'n';
     protected LinkedBlockingQueue<Character> movementOrders = new LinkedBlockingQueue<Character>();
     protected VisualInformation visualInformation        = new VisualInformation();
-    protected FindFood findFood                          = new FindFood();
+    protected FoodSniffer findFood                          = new FoodSniffer();
     protected FindPath findPath                          = new FindPath();
 
     /** Main Method */
@@ -34,16 +33,7 @@ public class MAgent extends AgentInterface {
     /** CONSTRUCTOR */
     public MAgent(String h, int p) {
         registerWithGrid(h, p);
-        initializeMemoryMap();
     }
-
-    /** The array of arrays all have 'p' for every value since the cheese could be at any spot */
-    public void initializeMemoryMap() {
-       for (int i = 0; i< memoryMap.length; i++) {
-        Arrays.fill(memoryMap[i], 'p');
-       }
-    }
-
 
     public void run() {
         String[] sensoryInfo;
@@ -111,13 +101,10 @@ public class MAgent extends AgentInterface {
 
 
     public Point locationOfObject(char objectSymbol) {
-        for (int row = 0; row < memoryMap.length; row++) {
-            for (int column = 0; column < memoryMap[row].length; column++){
-                if (memoryMap[row][column]==objectSymbol){
-                    return new Point(column, row);
-                }
-            }
-        }
+    	for(Tile t : memoryMap.getAllTiles()){
+    		if(t.v == memoryMap.getValueFromChar(objectSymbol))
+    			return t.getPoint();
+    	}
         return null;
     }
 

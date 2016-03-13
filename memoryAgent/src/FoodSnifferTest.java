@@ -8,23 +8,14 @@ import org.junit.Test;
 /**
  * Created by stefanandonian on 2/28/16.
  */
-public class FindFoodTest {
+public class FoodSnifferTest {
 
-    protected FindFood findFood        = new FindFood();
-    protected char[][] memoryMap       = new char[10][10];
+    protected FoodSniffer findFood        = new FoodSniffer();
+    protected MemoryMap memoryMap         = new MemoryMap(10, 10); 
 
     @Before
     public void setUp() {
-        for (int row = 0; row < memoryMap.length; row++) {
-            for (int column = 0; column < memoryMap[row].length; column++) {
-            	if (row ==2 && column ==5) {
-            		memoryMap[2][5] = '0';
-            	} else {
-            		memoryMap[row][column] = 'p';
-            	}
-            	//System.out.println("MemoryMap value: " + memoryMap[row][column] + " | row: " + row + " | column: "+ column);
-            }
-        }
+
     }
 
     @Test

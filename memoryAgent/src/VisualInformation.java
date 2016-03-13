@@ -10,7 +10,7 @@ public class VisualInformation {
     ////////////////// The following code updates the memory map after processing the retinal field ////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    protected Point botLocationOnVisualField             = new Point(5, 2);
+    protected final Point agentLocation       = new Point(5, 2);
     protected static final int visualRows    = 7;
     protected static final int visualColumns = 5;
 
@@ -19,51 +19,41 @@ public class VisualInformation {
      * @param memoryMap
      * @param facingDirection
      * @param visualInformation
-     * @param locationRow
-     * @param locationColumn
      * @return
      */
-    public char[][] processRetinalField(char[][] memoryMap, char facingDirection, String visualInformation, int locationRow, int locationColumn) {
+    public MemoryMap processRetinalField(MemoryMap memoryMap, MaedenAgent agent, String visualInformation) {
 
-        char[][] alteredMemoryMap = memoryMap;
         StringTokenizer visTokens = new StringTokenizer(visualInformation, "(", true);
         visTokens.nextToken();
-
         //iterate backwards through rows so character printout displays correctly
-        for (int visualRowUnderObservation = visualRows-1; visualRowUnderObservation >= 0; visualRowUnderObservation--) {
+        for (int r = visualRows-1; r >= 0; --r) {
             visTokens.nextToken();
-
             //iterate forwards through columns
-            for (int visualColumnUnderObservation=0; visualColumnUnderObservation <= visualColumns-1; visualColumnUnderObservation++) {
+            for (int c=0; c <= visualColumns-1; ++c) {
                 visTokens.nextToken();
-                String visChars = visTokens.nextToken();
-                alteredMemoryMap = updateMemory(alteredMemoryMap, facingDirection, visChars, locationRow, locationColumn, visualRowUnderObservation, visualColumnUnderObservation);
+                char[] visChars = visTokens.nextToken().toCharArray();
+                //////// STEFAN'S CODE ////////
+                Point visTile = new Point(r,c);
+                memoryMap = updateMemory(memoryMap, agent, visTile, visChars);
+                ///////////////////////////////
             }
         }
-        return alteredMemoryMap;
+        return memoryMap;
     }
 
     /**
      * WARNING: This method only returns the latter of two object if they are on the same spot
      * @param memoryMap
-     * @param currentDirection
+     * @param agent
+     * @param visTile
      * @param visChars
-     * @param locationRow
-     * @param locationColumn
-     * @param visualRow
-     * @param visualColumn
      * @return
      */
-    public char[][] updateMemory(char[][] memoryMap, char currentDirection, String visChars, int locationRow, int locationColumn, int visualRow, int visualColumn) {
-
-        char[][] alteredMemoryMap = memoryMap;
-        char[] visArray = visChars.toCharArray();
-        for(int x = 0; x < visChars.length(); x++) {
-            char cellChar = visArray[x];
-            Point updateLocation = translateLocationOnVisualToActual(currentDirection, locationRow, locationColumn, visualRow, visualColumn);
-            alteredMemoryMap[updateLocation.x][updateLocation.y] = cellChar;
-        }
-        return alteredMemoryMap;
+    public MemoryMap updateMemory(MemoryMap memoryMap, MaedenAgent agent, Point visTile, char[] visChars) {
+        Point actual = visualToActual(agent, visTile);
+        for (char item : visChars) 
+        	memoryMap.setTile(actual, item);
+        return memoryMap;
     }
 
     /**
@@ -75,24 +65,21 @@ public class VisualInformation {
      * @param visualLocationColumn
      * @return
      */
-    public Point translateLocationOnVisualToActual(char currentDirection, int currentLocationRow, int currentLocationColumn, int visualLocationRow, int visualLocationColumn){
-        Point updateLocation;
-        int horizontalDistanceFromBot = visualLocationColumn - botLocationOnVisualField.x;
-        int verticalDistanceFromBot   = visualLocationRow    - botLocationOnVisualField.y;
+    public Point visualToActual(MaedenAgent agent, Point visTile){
+        int columnDistance = visTile.x - this.agentLocation.x;
+        int rowDistance    = visTile.y - this.agentLocation.y;
 
-        switch (currentDirection){
-            case 'n' :
-                updateLocation = new Point(currentLocationColumn+horizontalDistanceFromBot, currentLocationRow-verticalDistanceFromBot);
-                break;
-            case 'e' :
-                updateLocation = new Point(currentLocationColumn+verticalDistanceFromBot, currentLocationRow+horizontalDistanceFromBot);
-                break;
-            case 's' :
-                updateLocation = new Point(currentLocationColumn-horizontalDistanceFromBot, currentLocationRow+verticalDistanceFromBot);
-                break;
-            default: //case 'w' :
-                updateLocation = new Point(currentLocationColumn-verticalDistanceFromBot, currentLocationRow-horizontalDistanceFromBot);
-                break;
-        } return updateLocation;
+        switch (agent.getPointingDirection()){
+            case NORTH :
+                return new Point(agent.getX()+columnDistance, agent.getY()-rowDistance);
+            case EAST  :
+                return new Point(agent.getX()+rowDistance, 	  agent.getY()+columnDistance);
+            case SOUTH :
+                return new Point(agent.getX()-columnDistance, agent.getY()+rowDistance);
+            case WEST  : //case 'w' :
+                return new Point(agent.getX()-rowDistance,    agent.getY()-columnDistance);
+            default: return null;
+        }
     }
+
 }
