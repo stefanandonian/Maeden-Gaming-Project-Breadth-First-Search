@@ -1,6 +1,8 @@
 import java.awt.Point;
+
 import java.util.LinkedList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 enum TileValue{
 	UNKNOWN,
@@ -34,6 +36,12 @@ public class MemoryMap {
 		this.xDomain = x;
 		this.yDomain = y;
 		map = new TileValue[xDomain][yDomain];
+		setMapUnknown();
+	}
+	
+	private void setMapUnknown() { 
+		for (Tile t : this.getAllTiles())
+			setTile(t.getX(), t.getY(), TileValue.UNKNOWN);
 	}
 	
 	public int getXDomain() {
@@ -121,5 +129,85 @@ public class MemoryMap {
 			return null;
 		}
 	}
+
+	public void print() {
+		for (int x=0; x<xDomain; ++x){
+			for (int y=0; y<yDomain; ++y){
+				new Tile(x, y, getTileValue(x, y)).print();
+			}
+			System.out.println();
+		}
+	}
+
+    protected final Point visLocation        = new Point(5, 2);
+    protected static final int visualRows    = 7;
+    protected static final int visualColumns = 5;
+
+    /**
+     *
+     * @param memoryMap
+     * @param facingDirection
+     * @param visualInformation
+     * @return
+     */
+
+    public void updateMemoryMap(MaedenAgent agent, String visualInformation) {
+
+        StringTokenizer visTokens = new StringTokenizer(visualInformation, "(", true);
+        visTokens.nextToken();
+        for (int r = visualRows-1; r >= 0; --r) {
+            visTokens.nextToken();
+            for (int c=0; c <= visualColumns-1; ++c) {
+                visTokens.nextToken();
+                String visChars = visTokens.nextToken();
+                Point visTile = new Point(r,c);
+                updateSightField(agent, visTile, visChars);
+            }
+        }
+    }
+
+    /**
+     * WARNING: This method only returns the latter of two object if they are on the same spot
+     * @param memoryMap
+     * @param agent
+     * @param visTile
+     * @param visChars
+     * @return
+     */
+    public void updateSightField(MaedenAgent agent, Point visTile, String visChars) {
+        Point actual = visualToActual(agent, visTile);
+        if(visChars.startsWith(")")) {
+        	setTile(actual, TileValue.NOTHING);
+        	return;
+        }
+        setTile(actual, visChars.toCharArray()[1]); 
+    }
+
+    /**
+     * This method takes a location on the visual field map and translates that into an actual location on the memorymap
+     * @param currentDirection
+     * @param currentLocationRow
+     * @param currentLocationColumn
+     * @param visualLocationRow
+     * @param visualLocationColumn
+     * @return
+     */
+    public Point visualToActual(MaedenAgent agent, Point visTile){
+        int columnDistance = visTile.x - this.visLocation.x;
+        int rowDistance    = visTile.y - this.visLocation.y;
+
+        switch (agent.getCompassDirection()){
+            case NORTH:
+                return new Point(agent.getX()+columnDistance, agent.getY()-rowDistance);
+            case EAST :
+                return new Point(agent.getX()+rowDistance, 	  agent.getY()+columnDistance);
+            case SOUTH:
+                return new Point(agent.getX()-columnDistance, agent.getY()+rowDistance);
+            case WEST : //case 'w' :
+                return new Point(agent.getX()-rowDistance,    agent.getY()-columnDistance);
+            default: return null;
+        }
+    }
+
 
 }

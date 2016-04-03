@@ -10,64 +10,83 @@ import java.util.concurrent.LinkedBlockingQueue;
  *@date:    1-30-16
  *@version: Delta 0.2
  */
-public class MAgent extends AgentInterface {
+public class MemoryAgent extends AgentInterface {
 
     /** size of largest possible world fits inside a 50 by 50 space */
-    protected static final int WIDTH                     = 100;
-    protected static final int HEIGHT                    = 100;
-    MemoryMap memoryMap									 = new MemoryMap(WIDTH, HEIGHT);
-    protected Point startingLocation                     = new Point(50, 50);
-    protected Point currentLocation                      = startingLocation; //at first the current location is the starting location
-    protected char facingDirection                       = 'n';
-    protected LinkedBlockingQueue<Character> movementOrders = new LinkedBlockingQueue<Character>();
-    protected VisualInformation visualInformation        = new VisualInformation();
-    protected FoodSniffer findFood                          = new FoodSniffer();
-    protected FindPath findPath                          = new FindPath();
+    protected static final int WIDTH  = 40;
+    protected static final int HEIGHT = 40;
+    protected static final int MOVES_BEFORE_CHECKING = 100;
+    private int newMoveCount = MOVES_BEFORE_CHECKING;
+    MemoryMap memoryMap;
+    MaedenAgent agent;
+    protected LinkedBlockingQueue<Character> movementOrders; 
+    //protected FoodSniffer foodSniffer = new FoodSniffer();
+    protected Path path = new Path();
 
     /** Main Method */
     public static void main(String [] args) {
-        MAgent client = new MAgent(HOST, MAEDENPORT);
+        MemoryAgent client = new MemoryAgent(HOST, MAEDENPORT);
         client.run();
     }
 
     /** CONSTRUCTOR */
-    public MAgent(String h, int p) {
-        registerWithGrid(h, p);
+    public MemoryAgent(String host, int port) {
+        registerWithGrid(host, port);
+        memoryMap = new MemoryMap(WIDTH, HEIGHT); 
+        agent = new MaedenAgent(20,20); 
+        movementOrders = new LinkedBlockingQueue<Character>();
     }
 
     public void run() {
-        String[] sensoryInfo;
+        String sensoryInfo;
         while (true) {
-            sensoryInfo = getSensoryInfo();
-            memoryMap = visualInformation.processRetinalField(memoryMap, facingDirection, sensoryInfo[2], currentLocation.y, currentLocation.x);
-            memoryMap = findFood.checkThroughPotentialFoodLocations(memoryMap, facingDirection, new Point(currentLocation.y, currentLocation.x));
+            sensoryInfo = getSensoryInfo()[2]; //help out the agent, it will probably through a bug
+            memoryMap.updateMemoryMap(agent, sensoryInfo);
+            memoryMap.print();
             checkOrders();
-            gridOut.print(movementOrders.poll());
+            //while (movementOrders.isEmpty()!=true)
+            //	System.out.println(movementOrders.poll());
+            char move = movementOrders.poll();
+            if (move == 'b'){
+            	gridOut.println('r');
+            	agent.update('r');
+            	sensoryInfo=getSensoryInfo()[2];
+            	memoryMap.updateMemoryMap(agent, sensoryInfo);
+            	agent.update(relativeDirection.RIGHT);
+            	gridOut.println('r');
+            	//newMoveCount=1000;
+            } else {
+            agent.update(move);
+            gridOut.println(move);
+            }
         }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////// The following code determines what to do given the current memoryMap ////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     public void checkOrders() {
-               if (foundFood()                    ){
-                   movementOrders = findPathToObject('+');
-                   return;
-        } else if (foundBoulder() && foundHammer()){
-                   clearRockWithHammer();
-                   return;
-        } else if (foundDoor()    && foundKey()   ){
+    	if (isTimeForNewMove()){
+            if (foundFood()){
+            	movementOrders = findPathToObject('+');
+               } else if (foundBoulder() && foundHammer()){
+                   		 clearRockWithHammer();
+               } else if (foundDoor() && foundKey()){
                    clearDoorWithKey();
-                   return;
-        } else {
+               } else {
                    explore();
-        }
+        	}
+    	}
+    }
+    
+    public boolean isTimeForNewMove() {
+    	newMoveCount++;
+    	if (newMoveCount >= MOVES_BEFORE_CHECKING) {
+    		newMoveCount = 0;
+    		return true;
+    	}
+    	return false;
     }
 
     public LinkedBlockingQueue<Character> findPathToObject(char objectSymbol) {
-        Point goHere = locationOfObject(objectSymbol);
-        return findPath.findPathToTarget(memoryMap, facingDirection, currentLocation.y, currentLocation.x, goHere.y, goHere.x);
+        return path.findPathToTarget(memoryMap, agent, locationOfObject(objectSymbol));
     }
 
     public LinkedBlockingQueue<Character> concatenateQueues(LinkedBlockingQueue<Character> addTo, LinkedBlockingQueue<Character> from) {
@@ -92,17 +111,17 @@ public class MAgent extends AgentInterface {
     }
 
     public void explore() {
-            if (Math.random() > 0.50) {
+            //if (Math.random() > 0.50) {
+            //    movementOrders = findPathToObject('u');
+            //} else {
                 movementOrders = findPathToObject('u');
-            } else {
-                movementOrders = findPathToObject('p');
-            }
+           // }
     }
 
 
     public Point locationOfObject(char objectSymbol) {
     	for(Tile t : memoryMap.getAllTiles()){
-    		if(t.v == memoryMap.getValueFromChar(objectSymbol))
+    		if(t.getValue() == memoryMap.getValueFromChar(objectSymbol))
     			return t.getPoint();
     	}
         return null;

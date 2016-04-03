@@ -24,25 +24,23 @@ enum Item {
 public class MaedenAgent {
 	
 	Utilities<compassDirection> utils = new Utilities<compassDirection>();
+	
+	private static final int DEFAULT_STARTING_X = 12;
+	private static final int DEFAULT_STARTING_Y = 12;
 	private int x;
 	private int y;
 	private compassDirection cD;
-	private relativeDirection rD;
 	private Item i;
 
 	private int compassDirectionsIndex = 0;
-	private final relativeDirection[] relativeDirections = new relativeDirection[] {
-			relativeDirection.FORWARD, relativeDirection.RIGHT, relativeDirection.BACK, relativeDirection.LEFT
-	};
 	private final compassDirection[] compassDirections = new compassDirection[] {
 			compassDirection.NORTH, compassDirection.EAST, compassDirection.SOUTH, compassDirection.WEST
 	};
 	
-	public MaedenAgent(int x, int y, compassDirection cD, relativeDirection rD, Item i) {
+	public MaedenAgent(int x, int y, compassDirection cD, Item i) {
 		this.x  = x;
 		this.y  = y;
 		this.cD = cD;
-		this.rD = rD;
 		this.i  = i;
 	}
 	
@@ -50,20 +48,18 @@ public class MaedenAgent {
 		this.x = x;
 		this.y = y;
 		this.cD = compassDirection.SOUTH;
-		this.rD = relativeDirection.FORWARD;
 		this.i = Item.NOTHING;
 	}
 
 	public MaedenAgent() {
-		this.x = 25;
-		this.y = 25;
+		this.x = DEFAULT_STARTING_X;
+		this.y = DEFAULT_STARTING_Y;
 		this.cD = compassDirection.SOUTH;
-		this.rD = relativeDirection.FORWARD;
 		this.i = Item.NOTHING;
 	}
 	
 	public MaedenAgent copy() {
-		return new MaedenAgent(this.x, this.y, this.cD, this.rD, this.i);
+		return new MaedenAgent(this.x, this.y, this.cD, this.i);
 	}
 	
 	public int getX(){
@@ -82,10 +78,6 @@ public class MaedenAgent {
 		return new Tile(this.x, this.y);
 	}
 	
-	public relativeDirection getRelativeDirection(){
-		return this.rD;
-	}
-	
 	public compassDirection getCompassDirection(){
 		return this.cD;
 	}
@@ -93,16 +85,46 @@ public class MaedenAgent {
 	public void update(Move move) {
 		this.x = move.getX();
 		this.y = move.getY();
-		this.cD = move.getCompassDirection();
+		updateCompassDirection(move.getRelativeDirection());
 	}
 	
-	public void updateCompassDirection(compassDirection cD) {
-		updateCompassDirection(compassDirectionAsChar(cD));
+	public void update(char c) {
+		update(toRelativeDirection(c));
 	}
 	
-	public void updateCompassDirection(char c){
+	public void update(relativeDirection rd){
+		updateCompassDirection(rd);
+		switch(rd){
+		case FORWARD: 
+			switch(this.cD) {
+			case WEST: this.x++; return;
+			case EAST: this.x--; return;
+			case NORTH: this.y--; return;
+			case SOUTH: this.y++; return;
+			default: System.out.println("agent is not facing north, south, east, or west"); return;
+			}
+		case BACK: 
+			switch(this.cD) {
+			case WEST: this.x--; return;
+			case EAST: this.x++; return;
+			case NORTH: this.y++; return;
+			case SOUTH: this.y--; return;
+			default: System.out.println("agent is not facing north, south, east, or west"); return;
+			}
+		default: 
+			if (rd != relativeDirection.LEFT && rd != relativeDirection.RIGHT) {
+				System.out.println("update recieved a character that wasn't f, b, l, or r"); return;
+			}
+		}
+	}
+	
+	public void updateCompassDirection(relativeDirection rd){
+		updateCompassDirection(toChar(rd));
+	}
+	
+	public void updateCompassDirection(char rd){
 		compassDirectionsIndex = utils.arrayIndexOf(compassDirections, this.cD);
-		switch(charAsRelativeDirection(c)) {
+		switch(toRelativeDirection(rd)) {
 		case RIGHT:
 			++compassDirectionsIndex;
 			break;
@@ -142,10 +164,6 @@ public class MaedenAgent {
 		this.y = y;
 	}
 	
-	public void setRelativeDirection(relativeDirection rD){
-		this.rD = rD;
-	}
-	
 	public void setCompassDirection(compassDirection cD){
 		this.cD = cD;
 	}
@@ -160,7 +178,7 @@ public class MaedenAgent {
 		this.i = i;
 	}
 	
-	public relativeDirection charAsRelativeDirection(char c) {
+	public relativeDirection toRelativeDirection(char c) {
 		switch(c) {
 		case 'f': return relativeDirection.FORWARD;
 		case 'b': return relativeDirection.BACK;
@@ -169,15 +187,25 @@ public class MaedenAgent {
 		default: return null;
 		}
 	}
+
+	public char toChar(relativeDirection rd) {
+		switch(rd) {
+		case FORWARD: return 'f';
+		case BACK: return 'b';
+		case RIGHT: return 'r';
+		case LEFT: return 'l';
+		default: return 'y';
+		}
+	}
 	
 	public char compassDirectionAsChar(compassDirection cD) {
 		switch(cD){
-		case NORTH:	return 'p';
+		case NORTH:	return 'n';
 		case EAST: return 'e';
 		case SOUTH:	return 's';
 		case WEST: return 'w';
 		default: return 'z';
 		}
 	}
-
+	
 }

@@ -1,63 +1,83 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   Move.java
+
 import java.awt.Point;
 
-public class Move {
+public class Move
+{
 
-	private int x;
-	private int y;
-	private compassDirection cD;
-	
-	private static final char NORTH_CHAR = 'n';
-	private static final char SOUTH_CHAR = 's';
-	private static final char WEST_CHAR  = 'w';
-	private static final char EAST_CHAR  = 'e';
+    public Move(int i, int j, relativeDirection relativeDirection)
+    {
+        x = i;
+        y = j;
+        rD = relativeDirection;
+    }
 
-	public Move(int x, int y, compassDirection cD) {
-		this.x = x;
-		this.y = y;
-		this.cD = cD;
-	}
-	
-	public Move(Point p, compassDirection cD) {
-		this.x = p.x;
-		this.y = p.y;
-		this.cD = cD;
-	}
-	
-	public Move(Point p, char c) {
-		this.x  = p.x;
-		this.y  = p.y;
-		this.cD = compassDirectionFromChar(c); 
-	}
-	
-	public int getX() {
-		return this.x;
-	}
-	
-	public int getY() {
-		return this.y;
-	}
-	
-	public Tile getTile(){
-		return new Tile(this.x, this.y);
-	}
-	
-	public compassDirection getCompassDirection(){
-		return this.cD;
-	}
-	
-	public compassDirection compassDirectionFromChar(char c) {
-		switch(c) {
-		case NORTH_CHAR:
-			return compassDirection.NORTH;
-		case SOUTH_CHAR:
-			return compassDirection.SOUTH;
-		case WEST_CHAR:
-			return compassDirection.WEST;
-		case EAST_CHAR:
-			return compassDirection.EAST;
-		default:
-			return null;
-		}
-	}
-		
+    public Move(Point point, relativeDirection relativeDirection)
+    {
+        x = point.x;
+        y = point.y;
+        rD = relativeDirection;
+    }
+
+    public Move(Point point, char c)
+    {
+        x = point.x;
+        y = point.y;
+        rD = relativeDirectionFromChar(c);
+    }
+
+    public int getX()
+    {
+        return x;
+    }
+
+    public int getY()
+    {
+        return y;
+    }
+
+    public Point getPoint()
+    {
+        return new Point(x, y);
+    }
+
+    public Tile getTile()
+    {
+        return new Tile(x, y);
+    }
+
+    public relativeDirection getRelativeDirection()
+    {
+        return rD;
+    }
+
+    public relativeDirection relativeDirectionFromChar(char c)
+    {
+        switch(c) {
+        case FORWARD_CHAR: // 'n'
+            return relativeDirection.FORWARD;
+        case BACK_CHAR: // 's'
+            return relativeDirection.BACK;
+        case LEFT_CHAR: // 'w'
+            return relativeDirection.LEFT;
+        case RIGHT_CHAR:
+            return relativeDirection.RIGHT;
+        }
+        return null;
+    }
+    
+    public void print() {
+    	System.out.print("Move "+ this.rD+"["+this.x+","+this.y+"]");
+    }
+
+    private int x;
+    private int y;
+    private relativeDirection rD;
+    private static final char FORWARD_CHAR = 'f';
+    private static final char BACK_CHAR    = 'b';
+    private static final char LEFT_CHAR    = 'l';
+    private static final char RIGHT_CHAR   = 'r';
 }
